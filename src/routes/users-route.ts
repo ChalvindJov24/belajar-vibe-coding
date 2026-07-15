@@ -1,9 +1,10 @@
 import { Elysia, t } from "elysia";
-import { registerUser } from "../services/users-service";
+import { registerUser, loginUser } from "../services/users-service";
 
 /**
- * Router khusus endpoint registrasi user.
+ * Router khusus endpoint registrasi dan login user.
  * Endpoint: POST /api/users
+ * Endpoint: POST /api/users/login
  */
 export const usersRoute = new Elysia()
   .post(
@@ -29,6 +30,26 @@ export const usersRoute = new Elysia()
     {
       body: t.Object({
         name: t.String(),
+        email: t.String(),
+        password: t.String(),
+      }),
+    }
+  )
+  .post(
+    "/api/users/login",
+    async ({ body }) => {
+      const { email, password } = body;
+
+      const result = await loginUser(email, password);
+
+      if (!result.success) {
+        return { data: result.error };
+      }
+
+      return { data: result.data };
+    },
+    {
+      body: t.Object({
         email: t.String(),
         password: t.String(),
       }),

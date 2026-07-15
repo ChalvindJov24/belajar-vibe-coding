@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { users } from "../db/schema";
+import { users, sessions } from "../db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
@@ -31,4 +31,43 @@ export async function registerUser(name: string, email: string, password: string
     .execute();
 
   return { success: true, data: "OK" } as const;
+}
+
+/**
+ * Login a user by email and password.
+ * Returns `{ success: true, data: "<uuid-token>" }` on success,
+ * or `{ success: false, error: "Email atau passwored salah" }` on failure.
+ */
+export async function loginUser(email: string, password: string) {
+  // 1. Query user by email
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  // 2. User not found
+  if (!user) {
+    return { success: false, error: "Email atau passwored salah" } as const;
+  }
+
+  // 3. Compare password with bcrypt
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  // 4. Password invalid
+  if (!isPasswordValid) {
+    return { success: false, error: "Email atau passwored salah" } as const;
+  }
+
+  // 5. Generate UUID token
+  const token = crypto.randomUUID();
+
+  // 6. Insert new session
+  await db.insert(sessions).values({
+    token,
+    userId: user.id,
+  });
+
+  // 7. Return success with token
+  return { success: true, data: token } as const;
 }
