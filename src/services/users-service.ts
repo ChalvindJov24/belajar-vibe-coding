@@ -103,3 +103,26 @@ export async function getCurrentUser(token: string) {
   } as const;
 }
 
+/**
+ * Logout user by deleting their session token.
+ */
+export async function logoutUser(token: string) {
+  const [session] = await db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.token, token))
+    .limit(1);
+
+  if (!session) {
+    return { success: false, error: "Unauthorized" } as const;
+  }
+
+  await db
+    .delete(sessions)
+    .where(eq(sessions.token, token))
+    .execute();
+
+  return { success: true, data: "Logout success" } as const;
+}
+
+

@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { registerUser, loginUser, getCurrentUser } from "../services/users-service";
+import { registerUser, loginUser, getCurrentUser, logoutUser } from "../services/users-service";
 
 /**
  * Router khusus endpoint registrasi dan login user.
@@ -78,5 +78,30 @@ export const usersRoute = new Elysia()
 
       return { data: result.data };
     }
+  )
+  .delete(
+    "/api/users/logout",
+    async ({ headers }) => {
+      const authHeader = headers["authorization"];
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return new Response(
+          JSON.stringify({ error: "Unauthorized" }),
+          { status: 401, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      const token = authHeader.substring(7);
+      const result = await logoutUser(token);
+
+      if (!result.success) {
+        return new Response(
+          JSON.stringify({ error: "Unauthorized" }),
+          { status: 401, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      return { data: result.data };
+    }
   );
+
 
