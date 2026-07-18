@@ -71,3 +71,35 @@ export async function loginUser(email: string, password: string) {
   // 7. Return success with token
   return { success: true, data: token } as const;
 }
+
+/**
+ * Get current user by session token.
+ */
+export async function getCurrentUser(token: string) {
+  const [result] = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      createdAt: users.createdAt,
+    })
+    .from(sessions)
+    .innerJoin(users, eq(sessions.userId, users.id))
+    .where(eq(sessions.token, token))
+    .limit(1);
+
+  if (!result) {
+    return { success: false, error: "Unauthorized" } as const;
+  }
+
+  return {
+    success: true,
+    data: {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      created_at: result.createdAt,
+    },
+  } as const;
+}
+
