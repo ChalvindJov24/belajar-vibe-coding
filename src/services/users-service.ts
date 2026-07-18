@@ -9,6 +9,19 @@ import bcrypt from "bcrypt";
  * or `{ success: false, error: "email sudah terdaftar" }`.
  */
 export async function registerUser(name: string, email: string, password: string) {
+  if (name.length > 255 || email.length > 255 || password.length > 255) {
+    return { success: false, error: "Input terlalu panjang. Maksimal 255 karakter." } as const;
+  }
+
+  if (name.length === 0 || email.length === 0 || password.length === 0) {
+    return { success: false, error: "Input tidak boleh kosong." } as const;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { success: false, error: "Format email tidak valid." } as const;
+  }
+
   // Check if email already exists
   const existing = await db
     .select()
@@ -39,6 +52,14 @@ export async function registerUser(name: string, email: string, password: string
  * or `{ success: false, error: "Email atau passwored salah" }` on failure.
  */
 export async function loginUser(email: string, password: string) {
+  if (email.length > 255 || password.length > 255) {
+    return { success: false, error: "Input terlalu panjang. Maksimal 255 karakter." } as const;
+  }
+
+  if (email.length === 0 || password.length === 0) {
+    return { success: false, error: "Input tidak boleh kosong." } as const;
+  }
+
   // 1. Query user by email
   const [user] = await db
     .select()
