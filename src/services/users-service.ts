@@ -13,6 +13,11 @@ export async function registerUser(name: string, email: string, password: string
     return { success: false, error: "Input terlalu panjang. Maksimal 255 karakter." } as const;
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { success: false, error: "Format email tidak valid." } as const;
+  }
+
   // Check if email already exists
   const existing = await db
     .select()
