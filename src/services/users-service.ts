@@ -9,6 +9,10 @@ import bcrypt from "bcrypt";
  * or `{ success: false, error: "email sudah terdaftar" }`.
  */
 export async function registerUser(name: string, email: string, password: string) {
+  if (name.length > 255 || email.length > 255 || password.length > 255) {
+    return { success: false, error: "Input terlalu panjang. Maksimal 255 karakter." } as const;
+  }
+
   // Check if email already exists
   const existing = await db
     .select()
