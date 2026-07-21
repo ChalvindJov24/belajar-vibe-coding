@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "db:push": "bun src/db/init.ts && drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test": "bun test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

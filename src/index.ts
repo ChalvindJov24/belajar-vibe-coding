@@ -1,23 +1,8 @@
-import { Elysia } from "elysia";
-import { db } from "./db";
-import { users } from "./db/schema";
-import { usersRoute } from "./routes/users-route";
+import { app } from "./app";
 
-const app = new Elysia()
-  .get("/", () => ({
-    status: "ok",
-    message: "Welcome to Elysia + Drizzle + MySQL backend built with Bun!",
-  }))
-  .use(usersRoute)
-  .get("/users", async () => {
-    try {
-      const allUsers = await db.select().from(users);
-      return { success: true, data: allUsers };
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
-  })
-  .listen(process.env.PORT || 3000);
+const port = process.env.PORT || 3000;
+
+app.listen(port);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
